@@ -1,0 +1,25 @@
+[package]
+name = "rigspark-upstream"
+version = "0.1.0"
+edition = "2021"
+description = "Private, local source control: your code stays on your Mac until you're ready to show the world."
+publish = false
+
+[[bin]]
+name = "upstream"
+path = "src/main.rs"
+
+[dependencies]
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+ureq = { version = "2", features = ["json"] }
+base64 = "0.22"
+rand = "0.8"
+tempfile = "3"
+regex = "1"
+
+[profile.dev]
+debug = 0
