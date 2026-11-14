@@ -399,3 +399,18 @@ fn apps_on_this_mac_link_and_name_their_agents() {
     s.post("/connect/Apps%20on%20this%20Mac", &[("action", "off")]);
     assert!(!file.exists());
 }
+
+/// Browsers drop a form nested in a form and close the outer one at the inner one's end, so
+/// the Copilot warning's own form must never sit inside the token form or Continue goes dead.
+#[test]
+fn move_in_continue_is_inside_its_form() {
+    let s = start();
+    let page = s.get("/move-in");
+    assert!(page.contains("Copilot may be training"), "warning shown");
+    let start = page.find(r#"action="/move-in/token""#).expect("token form");
+    let body = &page[start..];
+    let end = body.find("</form>").expect("form closes");
+    let form = &body[..end];
+    assert!(!form.contains("<form"), "no form inside the token form");
+    assert!(form.contains("Continue"), "Continue submits the token form");
+}

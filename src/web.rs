@@ -1505,11 +1505,13 @@ async fn move_in_page(State(app): State<Arc<App>>, q: Q) -> Html<String> {
         "Repos",
         &format!(
             r#"{}{done}<div class="top"><h1>Move in</h1></div><div class="seg" aria-label="From"><a class="on" aria-current="true">GitHub</a><span class="off" style="display:flex;align-items:center;padding:0 16px">GitLab · soon</span><span class="off" style="display:flex;align-items:center;padding:0 16px">Bitbucket · soon</span><span class="off" style="display:flex;align-items:center;padding:0 16px">Azure · soon</span></div>
-<form method="post" action="/move-in/token" style="display:flex;flex-direction:column;gap:24px">{}<label style="display:flex;flex-direction:column;gap:8px"><span class="sub">GitHub access token, used for this move only and never stored</span><input class="field" type="password" name="token" required autocomplete="off"></label>
-<div class="sub small">Give it read access to your repos and Actions. Add billing read access to see what Actions cost you.</div>{}<div class="foot"><button class="btn push">Continue</button></div></form>"#,
+{}<form method="post" action="/move-in/token" style="display:flex;flex-direction:column;gap:24px">{}<label style="display:flex;flex-direction:column;gap:8px"><span class="sub">GitHub access token, used for this move only and never stored</span><input class="field" type="password" name="token" required autocomplete="off"></label>
+<div class="sub small">Give it read access to your repos and Actions. Add billing read access to see what Actions cost you.</div><div class="foot"><button class="btn push">Continue</button></div></form>"#,
             flash(&q.0),
-            hidden(&app),
-            copilot_line(&app, "/move-in")
+            // The warning carries its own form, so it stays outside this one: a form inside a
+            // form ends the outer one early and leaves Continue outside it.
+            copilot_line(&app, "/move-in"),
+            hidden(&app)
         ),
     )
 }
@@ -1704,16 +1706,17 @@ async fn send_page(State(app): State<Arc<App>>, P(repo): P<String>, q: Q) -> Res
         "Repos",
         &format!(
             r#"{}<div class="top"><h1>Send to GitHub</h1></div><div class="sub"><a href="/r/{}">{r}</a> → <span class="mono">github.com/{}/{}</span></div>
-<form method="post" action="/r/{}/send" style="display:flex;flex-direction:column;gap:28px">{}<input type="hidden" name="s" value="{}">{vis}<div class="list">{rows}</div>{changed_note}
-<div style="display:flex;flex-direction:column;gap:12px">{runs}{}</div><div class="foot"><button class="btn push">Send</button></div></form>"#,
+{}<form method="post" action="/r/{}/send" style="display:flex;flex-direction:column;gap:28px">{}<input type="hidden" name="s" value="{}">{vis}<div class="list">{rows}</div>{changed_note}
+<div style="display:flex;flex-direction:column;gap:12px">{runs}</div><div class="foot"><button class="btn push">Send</button></div></form>"#,
             flash(&q.0),
             enc(&repo),
             esc(&t.owner),
             esc(&t.name),
+            // Outside the Send form for the same reason as on Move in.
+            copilot_line(&app, &format!("/r/{}/send?s={}", enc(&repo), enc(&sid))),
             enc(&repo),
             hidden(&app),
-            esc(&sid),
-            copilot_line(&app, &format!("/r/{}/send?s={}", enc(&repo), enc(&sid)))
+            esc(&sid)
         ),
     )
     .into_response()

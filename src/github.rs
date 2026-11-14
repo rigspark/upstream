@@ -80,24 +80,37 @@ pub struct RemoteRepo {
     pub private: bool,
 }
 
+/// Every repo you own or reach through an organisation you belong to, a page of 100 at a time.
 pub fn repos(token: &str) -> Result<Vec<RemoteRepo>, String> {
-    let v = call(
-        "GET",
-        "/user/repos?per_page=100&affiliation=owner&sort=pushed",
-        token,
-        None,
-    )?;
-    Ok(v.as_array()
-        .into_iter()
-        .flatten()
-        .filter_map(|r| {
-            Some(RemoteRepo {
-                owner: r["owner"]["login"].as_str()?.into(),
-                name: r["name"].as_str()?.into(),
-                private: r["private"].as_bool().unwrap_or(true),
+    let mut all = Vec::new();
+    for page in 1..=50 {
+        let v = call(
+            "GET",
+            &format!(
+                "/user/repos?per_page=100&page={page}&affiliation=owner,organization_member&sort=pushed"
+            ),
+            token,
+            None,
+        )?;
+        let batch: Vec<RemoteRepo> = v
+            .as_array()
+            .into_iter()
+            .flatten()
+            .filter_map(|r| {
+                Some(RemoteRepo {
+                    owner: r["owner"]["login"].as_str()?.into(),
+                    name: r["name"].as_str()?.into(),
+                    private: r["private"].as_bool().unwrap_or(true),
+                })
             })
-        })
-        .collect())
+            .collect();
+        let last = batch.len() < 100;
+        all.extend(batch);
+        if last {
+            break;
+        }
+    }
+    Ok(all)
 }
 
 pub fn workflow_ids(token: &str, owner: &str, name: &str) -> Vec<u64> {
