@@ -14,6 +14,20 @@ upstream --port 7900 --home <folder>
 Data lives in `~/Library/Application Support/org.rigspark.upstream` on a Mac
 (`$XDG_DATA_HOME/rigspark-upstream` elsewhere, or `UPSTREAM_HOME`).
 
+## See it
+
+These are wireframes with made-up example data, not screenshots: they show where things are and how code moves.
+
+![How code moves through Upstream: GitHub, Move in, Repos, Runs, Changes, Merge, and Send to GitHub only when you say so](docs/wireframes/flow.svg)
+
+| Repos | A change |
+|---|---|
+| ![Repos: every repo with its last run, Move in and New](docs/wireframes/repos.svg) | ![A change: the diff, checks, the safety check and Merge](docs/wireframes/change.svg) |
+| **Runs** | **Send to GitHub** |
+| ![Runs: what GitHub would have billed, and a failed run opened on its likely cause](docs/wireframes/runs.svg) | ![Send to GitHub: one branch, private or shown to the world, never forced](docs/wireframes/send.svg) |
+
+![Move in from GitHub in three screens: paste a token, pick repos, watch them move in](docs/wireframes/move-in.svg)
+
 ## What's in it
 
 - **Repos.** Bare git repos you clone and push over HTTP: `git clone http://127.0.0.1:7900/git/<repo>.git`.

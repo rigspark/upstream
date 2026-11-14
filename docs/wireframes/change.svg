@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="Upstream wireframe: a change">
+<rect width="1200" height="700" fill="#ffffff"/>
+<rect x="8" y="8" width="1184" height="684" rx="14" fill="#fff" stroke="#d2d2d7" stroke-width="1.5"/>
+<path d="M8 22 a14 14 0 0 1 14 -14 h1156 a14 14 0 0 1 14 14 v20 h-1184 z" fill="#f5f5f7"/>
+<circle cx="32" cy="26" r="6" fill="#ff5f57"/>
+<circle cx="52" cy="26" r="6" fill="#febc2e"/>
+<circle cx="72" cy="26" r="6" fill="#28c840"/>
+<text x="600.0" y="31" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="500" fill="#6e6e73" text-anchor="middle">127.0.0.1:7900</text>
+<line x1="8" y1="44" x2="1192" y2="44" stroke="#d2d2d7"/>
+<rect x="9" y="45" width="210" height="638" fill="#fff"/>
+<circle cx="38" cy="76" r="9" fill="#1d1d1f"/><rect x="31" y="72" width="14" height="6" rx="3" fill="#ffad00"/>
+<text x="56" y="81" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="15" font-weight="600" fill="#1d1d1f" text-anchor="start">Upstream</text>
+<text x="36" y="126" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="400" fill="#6e6e73" text-anchor="start">Repos</text>
+<rect x="22" y="144" width="184" height="34" rx="10" fill="#f5f5f7" stroke="none" stroke-width="1.5"/>
+<text x="36" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#1d1d1f" text-anchor="start">Changes</text>
+<text x="192" y="166" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="12" font-weight="600" fill="#a35500" text-anchor="end">1</text>
+<text x="36" y="206" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="400" fill="#6e6e73" text-anchor="start">Runs</text>
+<text x="36" y="638" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="400" fill="#6e6e73" text-anchor="start">Connect AI</text>
+<circle cx="40" cy="664" r="5" fill="#248a3d"/><text x="52" y="669" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="12" font-weight="400" fill="#6e6e73" text-anchor="start">Private to this Mac</text>
+<line x1="219" y1="45" x2="219" y2="691" stroke="#f5f5f7" stroke-width="2"/>
+<text x="260" y="100" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="30" font-weight="700" fill="#1d1d1f" text-anchor="start">Fix login redirect</text>
+<text x="260" y="130" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="400" fill="#6e6e73" text-anchor="start">my-app · fix-login into main</text>
+<rect x="260" y="152" width="800" height="190" rx="12" fill="#f5f5f7" stroke="none" stroke-width="1.5"/>
+<text x="280" y="184" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="400" fill="#6e6e73" text-anchor="start">diff --git a/src/login.rs b/src/login.rs</text>
+<text x="280" y="214" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="400" fill="#6e6e73" text-anchor="start">@@ -12,7 +12,7 @@ fn redirect(user: &amp;User) -&gt; Url {</text>
+<text x="280" y="244" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="400" fill="#d70015" text-anchor="start">-    Url::parse(&quot;/home&quot;)</text>
+<text x="280" y="274" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="400" fill="#248a3d" text-anchor="start">+    Url::parse(&amp;user.last_page)</text>
+<text x="280" y="304" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" font-weight="400" fill="#1d1d1f" text-anchor="start">     .unwrap_or_default()</text>
+<circle cx="268" cy="374" r="5" fill="#248a3d"/><text x="282" y="379" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="500" fill="#1d1d1f" text-anchor="start">Checks passed. The safety check found nothing.</text>
+<rect x="260" y="402" width="40" height="22" rx="11" fill="#248a3d" stroke="#248a3d" stroke-width="1.5"/><circle cx="289" cy="413" r="8" fill="#fff"/>
+<text x="312" y="412" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#1d1d1f" text-anchor="start">Join RigSpark’s mission: help people write great code without the risk of training AI.</text>
+<text x="312" y="430" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12" font-weight="400" fill="#6e6e73" text-anchor="start">Adds to the commit: Co-authored-by: RigSpark &lt;noreply@rigspark.si&gt;</text>
+<rect x="260" y="470" width="100" height="36" rx="18" fill="#ffad00" stroke="#ffad00" stroke-width="1.5"/><text x="310.0" y="493" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#1d1d1f" text-anchor="middle">Merge</text><text x="482.0" y="493" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="14" font-weight="600" fill="#a35500" text-anchor="middle">Close without merging</text>
+<rect x="800" y="470" width="260" height="94" rx="10" fill="#fff8e6" stroke="#ffad00" stroke-width="1.2"/><text x="814" y="492" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="500" fill="#1d1d1f" text-anchor="start">You merge, never an AI app</text><text x="814" y="510" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#6e6e73" text-anchor="start">Squash merge. The secret scan is the</text><text x="814" y="528" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#6e6e73" text-anchor="start">safety check and stands in as the</text><text x="814" y="546" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="12.5" font-weight="400" fill="#6e6e73" text-anchor="start">review on your own changes.</text>
+<rect x="1050" y="14" width="134" height="26" rx="13" fill="#fff" stroke="#6e6e73" stroke-width="1" stroke-dasharray="4 3"/><text x="1117" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif" font-size="11" font-weight="700" fill="#6e6e73" text-anchor="middle">WIREFRAME</text>
+</svg>
