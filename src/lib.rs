@@ -606,3 +606,38 @@ pub fn prune_logs(home: &Path, days: u64) {
         }
     }
 }
+
+/// RigSpark Crew's data folder on this Mac (`RIGSPARK_CREW_HOME` overrides it).
+pub fn crew_home() -> Option<PathBuf> {
+    if let Some(h) = std::env::var_os("RIGSPARK_CREW_HOME").filter(|h| !h.is_empty()) {
+        return Some(PathBuf::from(h));
+    }
+    let home = PathBuf::from(std::env::var_os("HOME")?);
+    Some(if cfg!(target_os = "macos") {
+        home.join("Library/Application Support/org.rigspark.crew")
+    } else {
+        std::env::var_os("XDG_DATA_HOME").map(PathBuf::from).unwrap_or_else(|| home.join(".local/share")).join("org.rigspark.crew")
+    })
+}
+
+/// Hands RigSpark Crew this server's address and Crew's key (`upstream.json`, mode 0600), or
+/// takes them back when `key` is None.
+pub fn link_crew(port: u16, key: Option<&str>) -> std::io::Result<()> {
+    let Some(dir) = crew_home() else { return Ok(()) };
+    let file = dir.join("upstream.json");
+    let Some(key) = key else {
+        return match std::fs::remove_file(&file) {
+            Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(e),
+            _ => Ok(()),
+        };
+    };
+    std::fs::create_dir_all(&dir)?;
+    let tmp = dir.join("upstream.json.tmp");
+    std::fs::write(&tmp, serde_json::json!({"url": format!("http://127.0.0.1:{port}"), "key": key}).to_string())?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&tmp, std::fs::Permissions::from_mode(0o600))?;
+    }
+    std::fs::rename(tmp, file)
+}

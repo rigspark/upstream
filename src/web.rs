@@ -1885,23 +1885,33 @@ async fn connect(State(app): State<Arc<App>>, q: Q) -> Html<String> {
                 (true, None) => "On · not used yet".into(),
                 _ => "Off".into(),
             };
-            let cmd = if *name == "Claude" {
+            let cmd = if *name == mcp::CREW {
+                String::new()
+            } else if *name == "Claude" {
                 format!("claude mcp add --transport http upstream {url} --header \"Authorization: Bearer {}\"", a.key)
             } else {
                 format!("export UPSTREAM_TOKEN={}\ncodex mcp add upstream --url {url} --bearer-token-env-var UPSTREAM_TOKEN", a.key)
             };
-            let detail = if on {
+            let detail = if on && *name == mcp::CREW {
                 format!(
-                    r#"<div class="foot" style="gap:12px;align-items:flex-start"><pre style="flex:1 1 420px;padding:12px 16px">{}</pre>{}</div><form method="post" action="/connect/{name}">{}<button class="btn ghost" name="action" value="rotate" style="padding:0">New key</button></form>"#,
+                    r#"<span class="sub">Linked to RigSpark Crew on this Mac. In Crew, pick an <span class="mono">upstream:</span> repo for Byte: it clones from here, pushes byte/ branches and opens changes you merge here.</span><form method="post" action="/connect/{}">{}<button class="btn ghost" name="action" value="rotate" style="padding:0">New key</button></form>"#,
+                    enc(name),
+                    hidden(&app)
+                )
+            } else if on {
+                format!(
+                    r#"<div class="foot" style="gap:12px;align-items:flex-start"><pre style="flex:1 1 420px;padding:12px 16px">{}</pre>{}</div><form method="post" action="/connect/{}">{}<button class="btn ghost" name="action" value="rotate" style="padding:0">New key</button></form>"#,
                     esc(&cmd),
                     copy(&cmd),
+                    enc(name),
                     hidden(&app)
                 )
             } else {
                 String::new()
             };
             format!(
-                r#"<div style="display:flex;flex-direction:column;gap:12px;padding:20px 0;border-bottom:1px solid rgba(0,0,0,.07)"><form method="post" action="/connect/{name}" class="foot" style="gap:14px">{}<span class="dot {}"></span><b style="font-size:17px">{name}</b><span class="sub">{state}</span><button class="btn{} push" name="action" value="{}">{}</button></form>{detail}</div>"#,
+                r#"<div style="display:flex;flex-direction:column;gap:12px;padding:20px 0;border-bottom:1px solid rgba(0,0,0,.07)"><form method="post" action="/connect/{}" class="foot" style="gap:14px">{}<span class="dot {}"></span><b style="font-size:17px">{name}</b><span class="sub">{state}</span><button class="btn{} push" name="action" value="{}">{}</button></form>{detail}</div>"#,
+                enc(name),
                 hidden(&app),
                 if on { "g" } else { "n" },
                 if on { " ghost" } else { "" },
@@ -1915,7 +1925,7 @@ async fn connect(State(app): State<Arc<App>>, q: Q) -> Html<String> {
         "Connect AI",
         "Connect",
         &format!(
-            r#"{}<div class="top"><h1>Connect AI</h1></div><div class="sub">Let Claude or Codex work in your repos through MCP. Each gets its own key, and you can switch it off any time.</div><div>{rows}</div>
+            r#"{}<div class="top"><h1>Connect AI</h1></div><div class="sub">Let Claude, Codex or RigSpark Crew work in your repos through MCP. Each gets its own key, and you can switch it off any time.</div><div>{rows}</div>
 <div style="display:flex;flex-direction:column;gap:12px"><span>They can read code, open changes and see runs. <span class="sub">Merging, sending to GitHub and approving deploys stay with you.</span></span>
 <div class="warn">{WARN}<span>Claude and Codex run in the cloud, so code they read leaves this Mac. Check each one’s data settings.</span></div>
 <span class="sub">Want it to stay here? Diagnosis on failed runs uses RigSpark’s local model when <span class="mono">UPSTREAM_MODEL_URL</span> is set.</span></div>"#,
@@ -1944,6 +1954,13 @@ async fn connect_post(State(app): State<Arc<App>>, P(name): P<String>, f: F) -> 
                 a.last_used = None;
             }
             _ => {}
+        }
+        // Crew learns its key from a file only it and this server read; off takes it back.
+        if name == mcp::CREW {
+            let key = a.enabled.then(|| a.key.clone());
+            if let Err(e) = crate::link_crew(app.port, key.as_deref()) {
+                eprintln!("upstream: couldn't link RigSpark Crew: {e}");
+            }
         }
     }
     app.save();

@@ -323,3 +323,58 @@ fn maintainer_day() {
     s.post("/copilot", &[("choice", "off"), ("back", "/")]);
     assert!(!s.get("/").contains("Copilot may be training"));
 }
+
+#[test]
+fn crew_link_and_byte_changes() {
+    let crew = tempfile::tempdir().unwrap();
+    // Only this test sets it; the other test never reads Crew's folder.
+    std::env::set_var("RIGSPARK_CREW_HOME", crew.path());
+    let s = start();
+    s.post("/new", &[("name", "app")]);
+    let work = tempfile::tempdir().unwrap();
+    let w = work.path();
+    git(w, &["init", "-q", "-b", "main"]);
+    git(w, &["config", "user.email", "me@example.com"]);
+    git(w, &["config", "user.name", "Me"]);
+    write(w, "README.md", "# app");
+    git(w, &["add", "-A"]);
+    git(w, &["commit", "-q", "-m", "First"]);
+    git(w, &["remote", "add", "up", &format!("{}/git/app.git", s.base)]);
+    git(w, &["push", "-q", "up", "main"]);
+    git(w, &["checkout", "-q", "-b", "byte/hello"]);
+    write(w, "hello.txt", "hi");
+    git(w, &["add", "-A"]);
+    git(w, &["commit", "-q", "-m", "Hello"]);
+    git(w, &["push", "-q", "up", "byte/hello"]);
+
+    // Switching Crew on hands it the address and its key; nothing to paste.
+    let (code, page) = s.post("/connect/RigSpark%20Crew", &[("action", "on")]);
+    assert_eq!(code, 200);
+    assert!(page.contains("Linked to RigSpark Crew"), "{page}");
+    let link: Value = serde_json::from_str(&std::fs::read_to_string(crew.path().join("upstream.json")).unwrap()).unwrap();
+    let key = s.state()["settings"]["assistants"]["RigSpark Crew"]["key"].as_str().unwrap().to_string();
+    assert_eq!(link["key"], key.as_str());
+    assert_eq!(link["url"], s.base.as_str());
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        assert_eq!(std::fs::metadata(crew.path().join("upstream.json")).unwrap().permissions().mode() & 0o777, 0o600);
+    }
+
+    // Crew names the bot that opened the change; other assistants can't.
+    let r = s.mcp(&key, "tools/call", json!({"name": "open_change", "arguments": {"repo": "app", "from": "byte/hello", "title": "Hello", "by": "Byte"}}));
+    assert!(r["result"]["content"][0]["text"].as_str().unwrap().contains("Opened change"), "{r}");
+    assert!(s.get("/changes").contains("opened by Byte"));
+    s.post("/connect/Claude", &[("action", "on")]);
+    let claude = s.state()["settings"]["assistants"]["Claude"]["key"].as_str().unwrap().to_string();
+    git(w, &["checkout", "-q", "-b", "other"]);
+    git(w, &["push", "-q", "up", "other"]);
+    s.mcp(&claude, "tools/call", json!({"name": "open_change", "arguments": {"repo": "app", "from": "other", "title": "Other", "by": "Byte"}}));
+    let st = s.state();
+    let other = st["changes"].as_array().unwrap().iter().find(|c| c["from"] == "other").unwrap();
+    assert_eq!(other["opened_by"], "Claude");
+
+    // Off takes the key back.
+    s.post("/connect/RigSpark%20Crew", &[("action", "off")]);
+    assert!(!crew.path().join("upstream.json").exists());
+}

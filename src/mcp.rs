@@ -14,7 +14,9 @@ use std::sync::Arc;
 use crate::store::{now, ChangeState};
 use crate::{git, runner, App};
 
-pub const ASSISTANTS: [&str; 2] = ["Claude", "Codex"];
+pub const ASSISTANTS: [&str; 3] = ["Claude", "Codex", CREW];
+/// RigSpark Crew on this Mac: its bots (Byte, …) open changes under their own names.
+pub const CREW: &str = "RigSpark Crew";
 const MAX_FILE: usize = 256 * 1024;
 
 fn who(app: &App, headers: &HeaderMap) -> Option<String> {
@@ -122,6 +124,11 @@ fn tools() -> Value {
     ])
 }
 
+/// A Crew bot's name: short, letters, digits, spaces and dashes.
+fn bot_name(b: &str) -> bool {
+    !b.is_empty() && b.len() <= 32 && b.chars().all(|c| c.is_ascii_alphanumeric() || c == ' ' || c == '-')
+}
+
 fn arg<'a>(args: &'a Value, k: &str) -> Option<&'a str> {
     args.get(k)
         .and_then(|v| v.as_str())
@@ -208,7 +215,12 @@ fn call(app: &Arc<App>, who: &str, name: &str, args: &Value) -> Result<String, S
                 .map(str::to_string)
                 .unwrap_or_else(|| git::default_branch(&git::repo_path(&app.home, &repo)));
             let title = arg(args, "title").unwrap_or("");
-            let id = crate::open_change(app, &repo, from, &into, title, who)?;
+            // Crew says which of its bots opened the change; anyone else is who their key says.
+            let by = match arg(args, "by") {
+                Some(b) if who == CREW && bot_name(b) => b.to_string(),
+                _ => who.to_string(),
+            };
+            let id = crate::open_change(app, &repo, from, &into, title, &by)?;
             Ok(format!(
                 "Opened change #{id}. The user reviews and merges it in Upstream › Changes."
             ))
